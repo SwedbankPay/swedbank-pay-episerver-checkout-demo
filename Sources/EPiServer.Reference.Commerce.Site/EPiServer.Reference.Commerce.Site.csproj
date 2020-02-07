@@ -849,6 +849,7 @@
     <Content Include="EPiServerFramework.Dev.config">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="License.cloud.config" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
