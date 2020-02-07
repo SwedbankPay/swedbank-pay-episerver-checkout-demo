@@ -203,7 +203,7 @@
       <HintPath>..\..\packages\SwedbankPay.Episerver.Checkout.0.2.0-alphaswedbankpay0001\lib\net461\SwedbankPay.Episerver.Checkout.OrderManagement.dll</HintPath>
     </Reference>
     <Reference Include="SwedbankPay.Sdk, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\SwedbankPay.Sdk.1.0.0-beta0005\lib\netstandard2.0\SwedbankPay.Sdk.dll</HintPath>
+      <HintPath>..\..\packages\SwedbankPay.Sdk.1.0.0-beta0512\lib\netstandard2.0\SwedbankPay.Sdk.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
