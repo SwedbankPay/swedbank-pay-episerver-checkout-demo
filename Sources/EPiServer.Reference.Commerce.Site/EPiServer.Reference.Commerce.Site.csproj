@@ -850,6 +850,15 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="License.cloud.config" />
+    <Content Include="EPiServerFramework.Tst.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="EPiServerFramework.Uat.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="EPiServerFramework.Pro.config">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
