@@ -1,21 +1,53 @@
 ﻿using Atata;
-using NUnit.Framework;
-using EPiServer.Reference.Commerce.UiTests.Tests.Base;
-using EPiServer.Reference.Commerce.UiTests.Tests.Helpers;
-using EPiServer.Reference.Commerce.UiTests.PageObjectModels.Payment;
-using EPiServer.Reference.Commerce.UiTests.Services;
 using EPiServer.Reference.Commerce.UiTests.PageObjectModels.CommerceSite;
 using EPiServer.Reference.Commerce.UiTests.PageObjectModels.ManagerSite;
+using EPiServer.Reference.Commerce.UiTests.PageObjectModels.Payment;
+using EPiServer.Reference.Commerce.UiTests.Services;
+using EPiServer.Reference.Commerce.UiTests.Tests.Base;
+using EPiServer.Reference.Commerce.UiTests.Tests.Helpers;
+using NUnit.Framework;
+using SwedbankPay.Sdk;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 
-namespace EPiServer.Reference.Commerce.UiTests.Tests.Varv
+namespace EPiServer.Reference.Commerce.UiTests.Tests.PaymentTest
 {
-    [Category(TestCategory.Varv)]
-    public class PaymentTests : TestBase
+    public abstract class PaymentTests : TestBase
     {
-        private string _amount;
-        private string _currency;
+        protected string _totalAmount;
+        protected string _shippingAmount;
+        protected string _currency;
+        protected string _orderId;
+        protected Uri _paymentOrderLink;
+
+        protected SwedbankPayClient SwedbankPayClient { get; private set; }
 
         public PaymentTests(Browsers.Browser browser) : base(browser) { }
+
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
+        {
+            #if DEBUG
+            var baseUri = new Uri("https://api.externalintegration.payex.com");
+            var bearer = "588431aa485611f8fce876731a1734182ca0c44fcad6b8d989e22f444104aadf"; // ConfigurationManager.AppSettings["payexTestToken"];
+            #elif RELEASE
+            var baseUri = new Uri(Environment.GetEnvironmentVariable("Payex.Api.Url", EnvironmentVariableTarget.User));
+            var bearer = Environment.GetEnvironmentVariable("Payex.Api.Token", EnvironmentVariableTarget.User);
+            #endif
+
+            var httpClient = new HttpClient()
+            {
+                BaseAddress = baseUri
+            };
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearer);
+
+            SwedbankPayClient = new SwedbankPayClient(httpClient);
+        }
 
         #region Method Helpers
 
@@ -24,56 +56,67 @@ namespace EPiServer.Reference.Commerce.UiTests.Tests.Varv
             return GoTo<HomeCommercePage>()
                 .Market.Click()
                 .MarketSelect.Set("Sweden")
-                .RefreshPage();
+                .PageUrl.WaitTo.Contain("sv");
         }
 
-        public MensProductPage GoToMensProductPage()
+        public MensProductPage SelectProducts(Product[] products)
         {
-            return GoTo<HomeCommercePage>()
+            return GoToCommerceHomePage()
                 .MensProductPage.Focus()
-                .MensProductPage.ClickAndGo();
+                .MensProductPage.ClickAndGo()
+                .Do(x => 
+                {
+                    foreach (var product in products)
+                    {
+                        var index = x.ProductList.IndexOf(y => !products.Any(p => p.Name == y.Name.Value) && (y.Price.IsPresent)).Value;
+
+                        x.ProductList[index].Price.StoreNumericValue(out var price);
+                        x.ProductList[index].Name.StoreValue(out var name);
+
+                        product.UnitPrice = price;
+                        product.Name = name;
+
+                        x.ProductList[index].Name.Hover();
+
+                        x.ProductList[index].OpenModalWindow.Click()
+                        .AddToCart.IsVisible.WaitTo.BeTrue();
+
+                        for(int i= 0; i < product.Quantity; i++)
+                        {
+                            x.AddToCart.Click();
+                        }
+
+                        x.CloseModalWindow.Click();
+                    }
+                });
         }
 
-        public ProductPage GoToProductPage()
+        public CheckoutPage GoToCheckoutPage(Product[] products)
         {
-            return GoToMensProductPage()
-                .ProductList.Items[x => x.Price.IsPresent].Link.ClickAndGo();
-        }
-
-        public CheckoutPage GoToCheckoutPage()
-        {
-            return GoToMensProductPage()
-                .ProductList.Items[x => x.Price.IsPresent].Link.ClickAndGo()
-                .AddToCart.Click()
+            return SelectProducts(products)
                 .Cart.Click()
                 .ContinueToCheckout.ClickAndGo()
                 .PaymentFrame.IsVisible.WaitTo.BeTrue()
-                .TotalAmount.StoreAmount(out _amount, out _currency);
+                .TotalAmount.StoreAmount(out _totalAmount, out _currency)
+                .ShippingAmount.StoreAmount(out _shippingAmount, out _currency);
         }
 
-        public ThankYouPage GoToThankYouPage(string paymentMethod = PaymentMethods.Card)
+        public ThankYouPage GoToThankYouPage(Product[] products, PayexInfo payexInfo)
         {
             ThankYouPage page;
 
-            var frame = GoToCheckoutPage()
+            var frame = GoToCheckoutPage(products)
                     .PaymentFrame.SwitchTo<PaymentFramePage>();
 
-            switch (paymentMethod)
+            page = payexInfo switch
             {
-                case PaymentMethods.Card:
-                    page = frame.PerformPaymentWithCard<ThankYouPage>($"{_amount} {_currency}");
-                    break;
+                PayexCardInfo _ => frame.PerformPaymentWithCard<ThankYouPage>($"{_totalAmount} {_currency}"),
+                PayexSwishInfo _ => frame.PerformPaymentWithCard<ThankYouPage>($"{_totalAmount} {_currency}"),
+                _ => frame.PerformPaymentWithCard<ThankYouPage>($"{_totalAmount} {_currency}"),
+            };
 
-                case PaymentMethods.Swish:
-                    page = frame.PerformPaymentWithSwish<ThankYouPage>($"{_amount} {_currency}");
-                    break;
-
-                default:
-                    page = frame.PerformPaymentWithCard<ThankYouPage>($"{_amount} {_currency}");
-                    break;
-            }
-
-            return page.ThankYouMessage.IsVisible.WaitTo.Within(15).BeTrue();
+            return page.ThankYouMessage.IsVisible.WaitTo.Within(15).BeTrue()
+                .OrderId.StoreOrderId(out _orderId);
         }
 
         public HomeManagerPage GoToManagerHomePage()
@@ -91,49 +134,36 @@ namespace EPiServer.Reference.Commerce.UiTests.Tests.Varv
 
         #endregion
 
-        #region Component
-
-        [Category(TestCategory.Component)]
-        [Test]
-        public void SelectedAmount_Should_Display()
+        protected static IEnumerable TestData(bool singleProduct = true, string paymentMethod = PaymentMethods.Card)
         {
-            //GoToThankYouPage(paymentMethod : PaymentMethods.Card);
+            var data = new List<object>();
 
-            GoToManagerPage()
-                .OrderManagement.DoubleClick()
-                .Today.IsVisible.WaitTo.BeTrue()
-                .Today.DoubleClick()
-                .OrdersFrame.SwitchTo<OrdersFramePage>()
-                .OrderTable.IsVisible.WaitTo.BeTrue()
-                .Do(x =>
+            if (singleProduct)
+                data.Add(new[]
                 {
-                    foreach (var row in x.OrderTable.Rows)
-                    {
-                        row.CheckBox.Check();
-                    }
+                    new Product { Name = "", Quantity = 1 }
                 });
+            else
+                data.Add(new[]
+                {
+                    new Product { Name = "", Quantity = 3 },
+                    new Product { Name = "", Quantity = 2 }
+                });
+
+            switch (paymentMethod)
+            {
+                case PaymentMethods.Card:
+                    data.Add(new PayexCardInfo(TestDataService.CreditCardNumber, TestDataService.CreditCardExpiratioDate,
+                                               TestDataService.CreditCardCvc));
+                    break;
+
+                case PaymentMethods.Swish:
+                    data.Add(new PayexSwishInfo(TestDataService.SwishPhoneNumber));
+                    break;
+            }
+
+            yield return data.ToArray();
         }
 
-        #endregion
-
-        #region Validations
-
-        [Category(TestCategory.Validation)]
-        public void Amount_FreeAmount_ValidationError()
-        {
-            
-        }
-
-        #endregion
-
-        #region Flow
-
-        [Category(TestCategory.Flow)]
-        [Test]
-        public void SignWithBankId()
-        {
-        }
-
-        #endregion
     }
 }

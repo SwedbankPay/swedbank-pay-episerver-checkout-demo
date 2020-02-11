@@ -19,7 +19,7 @@ namespace EPiServer.Reference.Commerce.UiTests.Services
         public static string ClearingNumber = "1234";
         public static string AccountNumber => "1234567890";
         public static string CreditCardNumber => "4925000000000004";
-        public static string CreditCardCVC => "210";
+        public static string CreditCardCvc => "210";
         public static string CreditCardExpiratioDate => DateTime.Now.AddMonths(3).AddYears(1).ToString("MMyy");
         public static string SwishPhoneNumber => "0739000001";
 

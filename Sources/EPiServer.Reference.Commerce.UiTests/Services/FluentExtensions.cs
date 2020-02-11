@@ -9,7 +9,7 @@ namespace EPiServer.Reference.Commerce.UiTests.Services
     public static class FluentExtensions
     {
         private static readonly Regex RegexAmount = new Regex(@"((\d+)[,.]*[\d]*) (\w+)");
-        private static readonly Regex RegexNumericalValue = new Regex(@"([\d]+)");
+        private static readonly Regex RegexNumericalValue = new Regex(@"((\d+)[,.]*[\d]*)");
 
         public static TOwner StoreValue<TOwner>(this UIComponent<TOwner> component, out string value)
             where TOwner : PageObject<TOwner>
@@ -41,12 +41,12 @@ namespace EPiServer.Reference.Commerce.UiTests.Services
             return component.Owner;
         }
 
-        public static TOwner StoreNumericValue<TOwner>(this UIComponent<TOwner> component, out int value)
+        public static TOwner StoreNumericValue<TOwner>(this UIComponent<TOwner> component, out double value)
             where TOwner : PageObject<TOwner>
         {
             string tmp = component is TextInput<TOwner> input ? input.Value : component.Content.Value;
 
-            value = int.Parse(RegexNumericalValue.Match(tmp).Value);
+            value = double.Parse(RegexNumericalValue.Match(tmp).Value, NumberStyles.AllowDecimalPoint);
 
             return component.Owner;
         }
@@ -70,6 +70,23 @@ namespace EPiServer.Reference.Commerce.UiTests.Services
             Assert.AreEqual(expectedAmount, actualAmount);
 
             return should.Owner;
+        }
+
+        public static TOwner StoreOrderId<TOwner>(this UIComponent<TOwner> component, out string orderId)
+            where TOwner : PageObject<TOwner>
+        {
+            var tmp = component.Content.Value;
+            orderId = tmp.Split(':')[1].Trim();
+            
+            return component.Owner;
+        }
+
+        public static TOwner StoreUri<TOwner>(this UIComponent<TOwner> component, out Uri value)
+            where TOwner : PageObject<TOwner>
+        {
+            var val = component.Content.Value;
+            value = new Uri(val, UriKind.RelativeOrAbsolute);
+            return component.Owner;
         }
 
     }

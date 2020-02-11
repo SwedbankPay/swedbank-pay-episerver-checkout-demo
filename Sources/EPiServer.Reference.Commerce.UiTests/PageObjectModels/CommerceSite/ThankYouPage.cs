@@ -8,5 +8,8 @@ namespace EPiServer.Reference.Commerce.UiTests.PageObjectModels.CommerceSite
     {
         [FindByContent("Tack för din beställning!")]
         public Text<_> ThankYouMessage { get; private set; }
+
+        [FindByContent(TermMatch.Contains, "Order ID:")]
+        public H2<_> OrderId { get; private set; }
     }
 }

@@ -11,15 +11,11 @@ namespace EPiServer.Reference.Commerce.UiTests.Tests.Base
 {
     #if DEBUG
     [TestFixture(Browsers.Browser.Chrome)]
-    //[TestFixture(Browsers.Browser.Firefox)]
-    //[Parallelizable(ParallelScope.All)]
     #elif RELEASE
     [TestFixture(Browsers.Browser.Chrome)]
     #endif
     public abstract class TestBase
     {
-        protected readonly Platforms.Platform _platform;
-        protected readonly Devices.Device _device;
         protected readonly Browsers.Browser _browser;
 
         protected readonly string _baseSiteCommerceUrl;
@@ -61,14 +57,14 @@ namespace EPiServer.Reference.Commerce.UiTests.Tests.Base
                     AtataContext.Configure()
                         .UseDriver(Browsers.BrowserNames[_browser])
                     .Build();
+                    AtataContext.Current.Driver.Maximize();
                     break;
             }
         }
 
-        public TestBase(Browsers.Browser browser, Platforms.Platform platform = Platforms.Platform.Windows)
+        public TestBase(Browsers.Browser browser)
         {
             _browser = browser;
-            _platform = platform;
         }
 
 

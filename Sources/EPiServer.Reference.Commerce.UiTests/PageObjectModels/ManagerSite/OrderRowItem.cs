@@ -9,6 +9,6 @@ namespace EPiServer.Reference.Commerce.UiTests.PageObjectModels.ManagerSite
         public CheckBox<TOwner> CheckBox { get; private set; }
 
         [FindFirst]
-        public Link<TOwner> Link { get; private set; }
+        public Link<OrderFramePage, TOwner> Link { get; private set; }
     }
 }

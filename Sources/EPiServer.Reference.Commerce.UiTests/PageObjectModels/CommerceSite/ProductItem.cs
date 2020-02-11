@@ -13,5 +13,8 @@ namespace EPiServer.Reference.Commerce.UiTests.PageObjectModels.CommerceSite
 
         [FindByClass("link--black")]
         public Link<ProductPage, TOwner> Link { get; private set; }
+
+        [FindFirst]
+        public Button<TOwner> OpenModalWindow { get; private set; }
     }
 }

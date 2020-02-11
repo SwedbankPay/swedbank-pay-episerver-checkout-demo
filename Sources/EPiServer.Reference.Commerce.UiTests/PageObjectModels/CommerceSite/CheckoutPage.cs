@@ -10,6 +10,9 @@ namespace EPiServer.Reference.Commerce.UiTests.PageObjectModels.CommerceSite
         public Frame<_> PaymentFrame { get; private set; }
 
         [FindByClass("total-price", Index = 3)]
-        public Text<_> TotalAmount { get; private set; }
+        public H4<_> ShippingAmount { get; private set; }
+
+        [FindByClass("total-price", Index = 3)]
+        public H4<_> TotalAmount { get; private set; }
     }
 }

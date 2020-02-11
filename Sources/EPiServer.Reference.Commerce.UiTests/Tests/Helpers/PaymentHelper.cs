@@ -13,7 +13,7 @@ namespace EPiServer.Reference.Commerce.UiTests.Tests.Helpers
                 .Pay.Content.Should.ContainAmount(amount)
                 .CreditCardNumber.Set(TestDataService.CreditCardNumber)
                 .ExpiryDate.Set(TestDataService.CreditCardExpiratioDate)
-                .Cvc.Set(TestDataService.CreditCardCVC)
+                .Cvc.Set(TestDataService.CreditCardCvc)
                 .Pay.Click();
 
             // This works on Chrome, but ot on firefox due to : "Error: TypeError: can't access dead object"
