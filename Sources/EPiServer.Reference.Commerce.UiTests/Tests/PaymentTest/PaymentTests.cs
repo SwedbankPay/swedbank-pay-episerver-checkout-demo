@@ -23,7 +23,6 @@ namespace EPiServer.Reference.Commerce.UiTests.Tests.PaymentTest
         protected string _shippingAmount;
         protected string _currency;
         protected string _orderId;
-        protected Uri _paymentOrderLink;
 
         protected SwedbankPayClient SwedbankPayClient { get; private set; }
 
@@ -111,7 +110,7 @@ namespace EPiServer.Reference.Commerce.UiTests.Tests.PaymentTest
             page = payexInfo switch
             {
                 PayexCardInfo _ => frame.PerformPaymentWithCard<ThankYouPage>($"{_totalAmount} {_currency}"),
-                PayexSwishInfo _ => frame.PerformPaymentWithCard<ThankYouPage>($"{_totalAmount} {_currency}"),
+                PayexSwishInfo _ => frame.PerformPaymentWithSwish<ThankYouPage>($"{_totalAmount} {_currency}"),
                 _ => frame.PerformPaymentWithCard<ThankYouPage>($"{_totalAmount} {_currency}"),
             };
 

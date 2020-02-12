@@ -16,15 +16,21 @@ namespace EPiServer.Reference.Commerce.UiTests.Tests.PaymentTest
         [TestCaseSource(nameof(TestData), new object[] { false, PaymentMethods.Card })]
         public async Task Authorization_With_CardAsync(Product[] products, PayexInfo payexInfo)
         {
+            var expected = new List<Dictionary<string, string>>
+            {
+                new Dictionary<string, string> { { PaymentColumns.TransactionType, TransactionType.Authorization.ToString() }, { PaymentColumns.Status, PaymentStatus.Processed }}
+            };
+
+            // Arrange
             GoToThankYouPage(products, payexInfo);
 
-            GoToManagerPage()
-                .OrderShouldContainsPayments(_orderId, new List<Dictionary<string, string>> 
-                {
-                    new Dictionary<string, string> { { PaymentColumns.TransactionType, TransactionType.Authorization.ToString() }, { PaymentColumns.Status, PaymentStatus.Processed }}
-                },
-                out _paymentOrderLink);
 
+            // Act
+            GoToManagerPage()
+                .AssertPaymentOrderTransactions(_orderId, expected, out var _paymentOrderLink);
+
+
+            // Assert
             var order = await SwedbankPayClient.PaymentOrder.Get(_paymentOrderLink, SwedbankPay.Sdk.PaymentOrders.PaymentOrderExpand.All);
 
             // Global Order

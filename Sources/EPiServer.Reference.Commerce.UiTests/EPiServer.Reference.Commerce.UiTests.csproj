@@ -97,6 +97,9 @@
     <Compile Include="PageObjectModels\ManagerSite\BaseManagerPage.cs" />
     <Compile Include="PageObjectModels\ManagerSite\HomeManagerPage.cs" />
     <Compile Include="PageObjectModels\ManagerSite\ManagerPage.cs" />
+    <Compile Include="PageObjectModels\ManagerSite\CreateOrEditReturnFramePage.cs" />
+    <Compile Include="PageObjectModels\ManagerSite\NewLineItemFramePage.cs" />
+    <Compile Include="PageObjectModels\ManagerSite\CreateRefundFramePage.cs" />
     <Compile Include="PageObjectModels\ManagerSite\PaymentRowItem.cs" />
     <Compile Include="PageObjectModels\ManagerSite\PickListsFramePage.cs" />
     <Compile Include="PageObjectModels\ManagerSite\ConfirmationPickListFramePage.cs" />
@@ -136,6 +139,8 @@
     <Compile Include="Tests\Helpers\PaymentMethods.cs" />
     <Compile Include="Tests\Helpers\PaymentStatus.cs" />
     <Compile Include="Tests\Helpers\Product.cs" />
+    <Compile Include="Tests\PaymentTest\PaymentCancellationTests.cs" />
+    <Compile Include="Tests\PaymentTest\PaymentReversalTests.cs" />
     <Compile Include="Tests\PaymentTest\PaymentSaleTests.cs" />
     <Compile Include="Tests\PaymentTest\PaymentCaptureTests.cs" />
     <Compile Include="Tests\PaymentTest\PaymentTests.cs" />
@@ -145,7 +150,9 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Tests\PaymentTest\Base\" />
+  </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

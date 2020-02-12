@@ -8,18 +8,19 @@ using System.Linq;
 
 namespace EPiServer.Reference.Commerce.UiTests.Tests.PaymentTest
 {
-    public class PaymentCaptureTests : PaymentTests
+    public class PaymentCancellationTests : PaymentTests
     {
-        public PaymentCaptureTests(Browsers.Browser browser) : base(browser) { }
+        public PaymentCancellationTests(Browsers.Browser browser) : base(browser) { }
 
         [Test]
         [TestCaseSource(nameof(TestData), new object[] { false, PaymentMethods.Card })]
-        public async Task Capture_With_CardAsync(Product[] products, PayexInfo payexInfo)
+        public async Task Cancellation_With_CardAsync(Product[] products, PayexInfo payexInfo)
         {
+            // "Void" is the terminology used in EPiServer to qualify a cancellation
             var expected = new List<Dictionary<string, string>>
             {
-                new Dictionary<string, string> { { PaymentColumns.TransactionType, TransactionType.Authorization.ToString() }, { PaymentColumns.Status, PaymentStatus.Processed } },
-                new Dictionary<string, string> { { PaymentColumns.TransactionType, TransactionType.Capture.ToString() },       { PaymentColumns.Status, PaymentStatus.Processed } },
+                new Dictionary<string, string> { { PaymentColumns.TransactionType, TransactionType.Authorization.ToString() }, { PaymentColumns.Status, PaymentStatus.Processed }},
+                new Dictionary<string, string> { { PaymentColumns.TransactionType, "Void" },                                   { PaymentColumns.Status, PaymentStatus.Processed }}
             };
 
             // Arrange
@@ -28,7 +29,7 @@ namespace EPiServer.Reference.Commerce.UiTests.Tests.PaymentTest
 
             // Act
             GoToManagerPage()
-                .CreateCapture(_orderId)
+                .CancelOrder(_orderId)
                 .AssertPaymentOrderTransactions(_orderId, expected, out var _paymentOrderLink);
 
 
@@ -38,15 +39,16 @@ namespace EPiServer.Reference.Commerce.UiTests.Tests.PaymentTest
             // Operations
             Assert.That(order.Operations[LinkRelation.CreatePaymentOrderCancel], Is.Null);
             Assert.That(order.Operations[LinkRelation.CreatePaymentOrderCapture], Is.Null);
+            Assert.That(order.Operations[LinkRelation.CreatePaymentOrderReversal], Is.Null);
             Assert.That(order.Operations[LinkRelation.PaidPaymentOrder], Is.Not.Null);
-            Assert.That(order.Operations[LinkRelation.CreatePaymentOrderReversal], Is.Not.Null);
 
             // Transactions
             Assert.That(order.PaymentOrderResponse.CurrentPayment.Payment.Transactions.TransactionList.Count, Is.EqualTo(expected.Count));
             Assert.That(order.PaymentOrderResponse.CurrentPayment.Payment.Transactions.TransactionList.First(x => x.Type == TransactionType.Authorization).State,
                         Is.EqualTo(State.Completed));
-            Assert.That(order.PaymentOrderResponse.CurrentPayment.Payment.Transactions.TransactionList.First(x => x.Type == TransactionType.Capture).State,
+            Assert.That(order.PaymentOrderResponse.CurrentPayment.Payment.Transactions.TransactionList.First(x => x.Type == TransactionType.Cancellation).State,
                         Is.EqualTo(State.Completed));
         }
+    
     }
 }

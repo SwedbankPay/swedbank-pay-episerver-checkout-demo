@@ -3,7 +3,7 @@
 namespace EPiServer.Reference.Commerce.UiTests.PageObjectModels.ManagerSite
 {
     [ControlDefinition("tr", ComponentTypeName = "Row")]
-    public class PaymentRowItem<TOwner> : TableRow<TOwner> where TOwner : BaseManagerPage<TOwner>
+    public class PaymentRowItem<TOwner> : TableRow<TOwner> where TOwner : Page<TOwner>
     {
         [FindFirst]
         public CheckBox<TOwner> CheckBox { get; private set; }

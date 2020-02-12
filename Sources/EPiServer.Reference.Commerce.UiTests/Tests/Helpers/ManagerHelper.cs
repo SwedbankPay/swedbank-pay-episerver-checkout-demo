@@ -3,6 +3,7 @@ using EPiServer.Reference.Commerce.UiTests.PageObjectModels.ManagerSite;
 using EPiServer.Reference.Commerce.UiTests.Services;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EPiServer.Reference.Commerce.UiTests.Tests.Helpers
 {
@@ -42,18 +43,54 @@ namespace EPiServer.Reference.Commerce.UiTests.Tests.Helpers
                 });
         }
 
+
+        public static ManagerPage CancelOrder(this ManagerPage frame, string orderId)
+        {
+            return frame
+                .ExpandOrders()
+                .Today.DoubleClick()
+                .RightFrame.DoWithin<OrdersFramePage>(x =>
+                {
+                    x
+                    .OrderTable.IsVisible.WaitTo.BeTrue()
+                    .OrderTable.Rows[x => x.Link.Content.Value.Contains(orderId)].Link.ClickAndGo()
+                    .Summary.Click()
+                    .CancelOrder.Click();
+                },
+                true);
+        }
+
         public static ManagerPage CompleteAndReleaseShipment(this ManagerPage frame, string orderId)
         {
             return frame
                 .ExpandOrders()
                 .Today.DoubleClick()
-                .RightFrame.SwitchTo<OrdersFramePage>()
-                .OrderTable.IsVisible.WaitTo.BeTrue()
-                .OrderTable.Rows[x => x.Link.Content.Value.Contains(orderId)].Link.ClickAndGo()
-                .Details.Click()
-                .CompleteShipment.Click()
-                .ReleaseShipment.Click()
-                .SwitchToRoot<ManagerPage>();
+                .RightFrame.DoWithin<OrdersFramePage>(x =>
+                {
+                    x
+                    .OrderTable.IsVisible.WaitTo.BeTrue()
+                    .OrderTable.Rows[x => x.Link.Content.Value.Contains(orderId)].Link.ClickAndGo()
+                    .Details.Click()
+                    .CompleteShipment.Click()
+                    .ReleaseShipment.Click();
+                },
+                true);
+        }
+
+        public static ManagerPage ReleaseShipment(this ManagerPage frame, string orderId)
+        {
+            return frame
+                .ExpandOrders()
+                .Today.DoubleClick()
+                .RightFrame.DoWithin<OrdersFramePage>(x =>
+                {
+                    x
+                    .OrderTable.IsVisible.WaitTo.BeTrue()
+                    .OrderTable.Rows[x => x.Link.Content.Value.Contains(orderId)].Link.ClickAndGo()
+                    .Details.Click()
+                    .ReleaseShipment.Click();
+                },
+                true);
         }
 
         public static ManagerPage AddShipmentToPickList(this ManagerPage frame, string orderId)
@@ -61,13 +98,16 @@ namespace EPiServer.Reference.Commerce.UiTests.Tests.Helpers
             return frame
                 .ExpandShipmentsAndPickLists()
                 .ReleasedForShipping.DoubleClick()
-                .RightFrame.SwitchTo<ShipmentsFramePage>()
-                .OrderTable.Rows[x => x.Link.Content.Value.Contains(orderId)].CheckBox.Check()
-                .AddShipmentToPickLlist.Click()
-                .ShipmentConfirmationFrame.SwitchTo<ConfirmationShipmentFramePage>()
-                .Confirm.Click()
-                .Confirm.IsVisible.WaitTo.BeFalse()
-                .SwitchToRoot<ManagerPage>();
+                .RightFrame.DoWithin<ShipmentsFramePage>(x =>
+                {
+                    x
+                    .OrderTable.Rows[x => x.Link.Content.Value.Contains(orderId)].CheckBox.Check()
+                    .AddShipmentToPickLlist.Click()
+                    .ShipmentConfirmationFrame.SwitchTo<ConfirmationShipmentFramePage>()
+                    .Confirm.Click()
+                    .Confirm.IsVisible.WaitTo.BeFalse();
+                },
+                true);
         }
 
         public static ManagerPage CompletePickListShipment(this ManagerPage frame, string orderId)
@@ -75,22 +115,98 @@ namespace EPiServer.Reference.Commerce.UiTests.Tests.Helpers
             return frame
                 .ExpandShipmentsAndPickLists()
                 .PickLists.DoubleClick()
-                .RightFrame.SwitchTo<PickListsFramePage>()
-                .Do(x =>
+                .RightFrame.DoWithin<PickListsFramePage>(x =>
                 {
-                    int count = x.OrderTable.Rows.Count.Value - 1;
-                    x.OrderTable.Rows[count].Link.Click();
-                })
-                .OrderTable.Rows[x => x.Link.Content.Value.Contains(orderId)].CheckBox.Check()
-                .CompleteShipment.Click()
-                .ShipmentConfirmationFrame.SwitchTo<ConfirmationPickListFramePage>()
-                .TrackingNumber.Set("123")
-                .Confirm.Click()
-                .Confirm.IsVisible.WaitTo.BeFalse()
-                .SwitchToRoot<ManagerPage>();
+                    x
+                    .SortByName.Click().SortByName.Click()
+                    .OrderTable.Rows[0].Link.Click()
+                    .OrderTable.Rows[x => x.Link.Content.Value.Contains(orderId)].CheckBox.Check()
+                    .CompleteShipment.Click()
+                    .ShipmentConfirmationFrame.SwitchTo<ConfirmationPickListFramePage>()
+                    .TrackingNumber.Set("123")
+                    .Confirm.Click()
+                    .Confirm.IsVisible.WaitTo.BeFalse();
+                },
+                true);
         }
-    
-        public static ManagerPage OrderShouldContainsPayments(this ManagerPage frame, string orderId, List<Dictionary<string, string>> list, out Uri paymentLink)
+
+        public static ManagerPage CreateReturn(this ManagerPage frame, string orderId, Product[] products)
+        {
+            return frame
+                .ExpandOrders()
+                .Today.DoubleClick()
+                .RightFrame.DoWithin<OrdersFramePage>(x =>
+                {
+                    x
+                    .OrderTable.IsVisible.WaitTo.BeTrue()
+                    .OrderTable.Rows[x => x.Link.Content.Value.Contains(orderId)].Link.ClickAndGo()
+                    .Details.Click()
+                    .CreateReturn.Click()
+                    .CreateOrEditReturnFrame.DoWithin<CreateOrEditReturnFramePage>(x =>
+                    {
+                        var count = 0;
+
+                        foreach (var item in products)
+                        {
+                            x
+                            .NewLineItem.Click()
+                            .NewLineItemFrame.DoWithin<NewLineItemFramePage>(x =>
+                            {
+                                x
+                                .Item.Set(item.Name)
+                                .Quantity.Set(item.Quantity.ToString())
+                                .Confirm.Click()
+                                .Confirm.IsVisible.WaitTo.BeFalse();
+                            },
+                            true)
+                            .SwitchToRoot<ManagerPage>().RightFrame.SwitchTo<OrderFramePage>().CreateOrEditReturnFrame.SwitchTo<CreateOrEditReturnFramePage>()
+                            .ReturnTable.Rows.Count.WaitTo.Equal(++count);
+                        }
+
+                        x
+                        .Confirm.Click()
+                        .Confirm.IsVisible.WaitTo.BeFalse();
+                    },
+                    true)
+                    .SwitchToRoot<ManagerPage>();
+                },
+                true);
+        }
+
+        public static ManagerPage CompleteReturn(this ManagerPage frame, Product[] products, bool partial)
+        {
+            return frame
+                .RightFrame.DoWithin<OrderFramePage>(x =>
+                {
+                    x
+                    .SaveChanges.Click()
+                    .SaveChanges.IsVisible.WaitTo.BeFalse()
+                    .Returns.Click()
+                    .AcknowledgeReceiptItems.IsEnabled.WaitTo.BeTrue()
+                    .AcknowledgeReceiptItems.Click()
+                    .TableReturns.Rows.Count.WaitTo.Equal(products.Length)
+                    .CompleteReturn.IsEnabled.WaitTo.BeTrue()
+                    .OrderTotal.StoreValue(out var totalAmount)
+                    .CompleteReturn.Click()
+                    .CreateRefundFrame.DoWithin<CreateRefundFramePage>(x =>
+                    {
+                        x
+                        .Do(x =>
+                        {
+                            if (!partial)
+                            {
+                                x.Amount.Set(totalAmount.Replace(",", ".").Split(' ').First());
+                            }
+                        })
+                        .Confirm.Click()
+                        .Confirm.IsVisible.WaitTo.BeFalse();
+                        
+                    });
+                },
+                true);
+        }
+
+        public static ManagerPage AssertPaymentOrderTransactions(this ManagerPage frame, string orderId, List<Dictionary<string, string>> list, out Uri paymentLink)
         {
             return frame
                 .ExpandOrders()
@@ -111,6 +227,36 @@ namespace EPiServer.Reference.Commerce.UiTests.Tests.Helpers
                 .Summary.Click()
                 .PaymentLink.StoreUri(out paymentLink)
                 .SwitchToRoot<ManagerPage>();
+        }
+
+
+        public static ManagerPage CreateCancellaton(this ManagerPage frame, string orderId)
+        {
+            return frame
+                .CancelOrder(orderId);
+        }
+
+        public static ManagerPage CreateCapture(this ManagerPage frame, string orderId)
+        {
+            return frame
+                .CompleteAndReleaseShipment(orderId)
+                .AddShipmentToPickList(orderId)
+                .CompletePickListShipment(orderId);
+        }
+
+        public static ManagerPage CreateReversal(this ManagerPage frame, string orderId, Product[] products, bool partial = true)
+        {
+            return frame
+                .CreateReturn(orderId, products)
+                .CompleteReturn(products, partial);
+        }
+
+        public static ManagerPage CompleteSale(this ManagerPage frame, string orderId)
+        {
+            return frame
+                .ReleaseShipment(orderId)
+                .AddShipmentToPickList(orderId)
+                .CompletePickListShipment(orderId);
         }
     }
 }
