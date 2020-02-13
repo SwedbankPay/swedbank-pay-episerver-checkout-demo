@@ -2,7 +2,7 @@
 using EPiServer.Reference.Commerce.UiTests.PageObjectModels.Base;
 using EPiServer.Reference.Commerce.UiTests.PageObjectModels.Base.Attributes;
 using EPiServer.Reference.Commerce.UiTests.PageObjectModels.CommerceSite;
-using EPiServer.Reference.Commerce.UiTests.PageObjectModels.ManagerSite;
+using EPiServer.Reference.Commerce.UiTests.PageObjectModels.ManagerSite.Base;
 
 namespace EPiServer.Reference.Commerce.UiTests.PageObjectModels.Payment
 {
@@ -23,8 +23,6 @@ namespace EPiServer.Reference.Commerce.UiTests.PageObjectModels.Payment
         [FindById("ssnInput")] public TelInput<_> PersonalNumber { get; set; }
 
         [FindById("msisdnInput")] public TelInput<_> PhoneNumber { get; set; }
-
-        public ValidationIconList<_> ValidationIcons { get; set; }
 
         [FindById("zipCodeInput")] public TelInput<_> ZipCode { get; set; }
     }

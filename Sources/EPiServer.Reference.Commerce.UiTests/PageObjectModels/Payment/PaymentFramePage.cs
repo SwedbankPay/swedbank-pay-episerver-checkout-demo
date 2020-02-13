@@ -1,6 +1,6 @@
 ﻿using Atata;
 using EPiServer.Reference.Commerce.UiTests.PageObjectModels.Base.Attributes;
-using EPiServer.Reference.Commerce.UiTests.PageObjectModels.CommerceSite;
+using EPiServer.Reference.Commerce.UiTests.PageObjectModels.CommerceSite.Base;
 using EPiServer.Reference.Commerce.UiTests.PageObjectModels.ManagerSite;
 
 namespace EPiServer.Reference.Commerce.UiTests.PageObjectModels.Payment

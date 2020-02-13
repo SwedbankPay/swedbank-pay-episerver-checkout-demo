@@ -20,6 +20,5 @@ namespace EPiServer.Reference.Commerce.UiTests.PageObjectModels.Payment
         [Wait(1, TriggerEvents.BeforeClick)]
         [FindById("px-submit")] public Button<_> Pay { get; set; }
 
-        public ValidationIconList<_> ValidationIcons { get; set; }
     }
 }

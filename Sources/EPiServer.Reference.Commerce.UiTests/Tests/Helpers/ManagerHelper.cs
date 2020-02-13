@@ -1,5 +1,8 @@
 ﻿using Atata;
-using EPiServer.Reference.Commerce.UiTests.PageObjectModels.ManagerSite;
+using EPiServer.Reference.Commerce.UiTests.PageObjectModels.ManagerSite.Base;
+using EPiServer.Reference.Commerce.UiTests.PageObjectModels.ManagerSite.Order;
+using EPiServer.Reference.Commerce.UiTests.PageObjectModels.ManagerSite.Return;
+using EPiServer.Reference.Commerce.UiTests.PageObjectModels.ManagerSite.Shipment;
 using EPiServer.Reference.Commerce.UiTests.Services;
 using System;
 using System.Collections.Generic;
@@ -9,6 +12,8 @@ namespace EPiServer.Reference.Commerce.UiTests.Tests.Helpers
 {
     public static class ManagerHelper
     {
+        #region Expand tree
+
         public static ManagerPage ExpandOrders(this ManagerPage frame)
         {
             return frame
@@ -43,6 +48,9 @@ namespace EPiServer.Reference.Commerce.UiTests.Tests.Helpers
                 });
         }
 
+        #endregion
+
+        #region EPiServer Operations
 
         public static ManagerPage CancelOrder(this ManagerPage frame, string orderId)
         {
@@ -229,6 +237,9 @@ namespace EPiServer.Reference.Commerce.UiTests.Tests.Helpers
                 .SwitchToRoot<ManagerPage>();
         }
 
+        #endregion
+
+        #region Payex Operations
 
         public static ManagerPage CreateCancellaton(this ManagerPage frame, string orderId)
         {
@@ -258,5 +269,7 @@ namespace EPiServer.Reference.Commerce.UiTests.Tests.Helpers
                 .AddShipmentToPickList(orderId)
                 .CompletePickListShipment(orderId);
         }
+
+        #endregion
     }
 }

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace EPiServer.Reference.Commerce.UiTests.Tests.Helpers
+﻿namespace EPiServer.Reference.Commerce.UiTests.Tests.Helpers
 {
     public class PaymentColumns
     {
