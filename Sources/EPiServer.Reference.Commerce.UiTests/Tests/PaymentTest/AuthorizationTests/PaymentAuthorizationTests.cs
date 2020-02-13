@@ -8,11 +8,13 @@ using System.Linq;
 
 namespace EPiServer.Reference.Commerce.UiTests.Tests.PaymentTest
 {
+    [Category(TestCategory.Authorization)]
     public class PaymentAuthorizationTests : PaymentTests
     {
         public PaymentAuthorizationTests(Browsers.Browser browser) : base(browser) { }
 
         [Test]
+        [Category(TestCategory.Card)]
         [TestCaseSource(nameof(TestData), new object[] { false, PaymentMethods.Card })]
         public async Task Authorization_With_CardAsync(Product[] products, PayexInfo payexInfo)
         {

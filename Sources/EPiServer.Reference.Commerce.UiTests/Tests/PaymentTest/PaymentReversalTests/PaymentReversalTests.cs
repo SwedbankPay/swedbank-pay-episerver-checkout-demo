@@ -8,11 +8,13 @@ using System.Linq;
 
 namespace EPiServer.Reference.Commerce.UiTests.Tests.PaymentTest.PaymentReversalTests
 {
+    [Category(TestCategory.Reversal)]
     public class PaymentReversalTests : PaymentTests
     {
         public PaymentReversalTests(Browsers.Browser browser) : base(browser) { }
 
         [Test]
+        [Category(TestCategory.Card)]
         [TestCaseSource(nameof(TestData), new object[] { false, PaymentMethods.Card })]
         public async Task PartialReversal_With_CardAsync(Product[] products, PayexInfo payexInfo)
         {
@@ -50,6 +52,7 @@ namespace EPiServer.Reference.Commerce.UiTests.Tests.PaymentTest.PaymentReversal
         }
 
         [Test]
+        [Category(TestCategory.Card)]
         [TestCaseSource(nameof(TestData), new object[] { false, PaymentMethods.Card })]
         public async Task FullReversal_With_CardAsync(Product[] products, PayexInfo payexInfo)
         {
@@ -92,6 +95,7 @@ namespace EPiServer.Reference.Commerce.UiTests.Tests.PaymentTest.PaymentReversal
         }
 
         [Test]
+        [Category(TestCategory.Swish)]
         [TestCaseSource(nameof(TestData), new object[] { false, PaymentMethods.Swish })]
         public async Task FullReversal_With_SwishAsync(Product[] products, PayexInfo payexInfo)
         {

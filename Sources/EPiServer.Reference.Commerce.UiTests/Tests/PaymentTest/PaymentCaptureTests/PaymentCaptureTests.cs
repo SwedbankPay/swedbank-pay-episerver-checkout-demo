@@ -8,11 +8,13 @@ using System.Linq;
 
 namespace EPiServer.Reference.Commerce.UiTests.Tests.PaymentTest.PaymentCaptureTests
 {
+    [Category(TestCategory.Capture)]
     public class PaymentCaptureTests : PaymentTests
     {
         public PaymentCaptureTests(Browsers.Browser browser) : base(browser) { }
 
         [Test]
+        [Category(TestCategory.Card)]
         [TestCaseSource(nameof(TestData), new object[] { false, PaymentMethods.Card })]
         public async Task Capture_With_CardAsync(Product[] products, PayexInfo payexInfo)
         {

@@ -18,10 +18,6 @@ namespace EPiServer.Reference.Commerce.UiTests.Tests.Base
     {
         protected readonly Browsers.Browser _browser;
 
-        protected readonly string _baseSiteCommerceUrl;
-        protected readonly string _baseSiteManagerUrl;
-
-
         [OneTimeSetUp]
         public void GlobalSetup()
         {
@@ -66,7 +62,6 @@ namespace EPiServer.Reference.Commerce.UiTests.Tests.Base
         {
             _browser = browser;
         }
-
 
         [OneTimeTearDown]
         public void GlobalDown()

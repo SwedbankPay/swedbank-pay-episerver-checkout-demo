@@ -8,11 +8,13 @@ using System.Linq;
 
 namespace EPiServer.Reference.Commerce.UiTests.Tests.PaymentTest.PaymentSaleTests
 {
+    [Category(TestCategory.Sale)]
     public class PaymentSaleTests : PaymentTests
     {
         public PaymentSaleTests(Browsers.Browser browser) : base(browser) { }
 
         [Test]
+        [Category(TestCategory.Swish)]
         [TestCaseSource(nameof(TestData), new object[] { false, PaymentMethods.Swish })]
         public async Task Sale_With_SwishAsync(Product[] products, PayexInfo payexInfo)
         {
