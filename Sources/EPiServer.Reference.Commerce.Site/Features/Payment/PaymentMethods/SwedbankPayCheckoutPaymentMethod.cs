@@ -118,7 +118,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Payment.PaymentMethods
             payment.PaymentMethodId = PaymentMethodId;
             payment.PaymentMethodName = Constants.SwedbankPayCheckoutSystemKeyword;
             payment.Amount = amount;
-            var isSwishPayment = currentPayment.Instrument.Equals(Instrument.Swish);
+            var isSwishPayment = currentPayment.Instrument.Equals(PaymentInstrument.Swish);
             payment.Status = isSwishPayment ? PaymentStatus.Processed.ToString() : PaymentStatus.Pending.ToString();
             payment.TransactionType = isSwishPayment ? TransactionType.Sale.ToString() : TransactionType.Authorization.ToString();
             return payment;
