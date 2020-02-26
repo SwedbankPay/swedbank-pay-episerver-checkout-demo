@@ -261,13 +261,13 @@
       <HintPath>..\..\packages\structuremap.web.4.0.0.315\lib\net40\StructureMap.Web.dll</HintPath>
     </Reference>
     <Reference Include="SwedbankPay.Episerver.Checkout, Version=0.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\SwedbankPay.Episerver.Checkout.0.2.0-alphaswedbankpay0020\lib\net461\SwedbankPay.Episerver.Checkout.dll</HintPath>
+      <HintPath>..\..\packages\SwedbankPay.Episerver.Checkout.0.2.0-beta0000\lib\net461\SwedbankPay.Episerver.Checkout.dll</HintPath>
     </Reference>
     <Reference Include="SwedbankPay.Episerver.Checkout.Common, Version=0.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\SwedbankPay.Episerver.Checkout.0.2.0-alphaswedbankpay0020\lib\net461\SwedbankPay.Episerver.Checkout.Common.dll</HintPath>
+      <HintPath>..\..\packages\SwedbankPay.Episerver.Checkout.0.2.0-beta0000\lib\net461\SwedbankPay.Episerver.Checkout.Common.dll</HintPath>
     </Reference>
     <Reference Include="SwedbankPay.Episerver.Checkout.OrderManagement, Version=0.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\SwedbankPay.Episerver.Checkout.0.2.0-alphaswedbankpay0020\lib\net461\SwedbankPay.Episerver.Checkout.OrderManagement.dll</HintPath>
+      <HintPath>..\..\packages\SwedbankPay.Episerver.Checkout.0.2.0-beta0000\lib\net461\SwedbankPay.Episerver.Checkout.OrderManagement.dll</HintPath>
     </Reference>
     <Reference Include="SwedbankPay.Sdk, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\SwedbankPay.Sdk.1.1.0-beta0000\lib\netstandard2.0\SwedbankPay.Sdk.dll</HintPath>
