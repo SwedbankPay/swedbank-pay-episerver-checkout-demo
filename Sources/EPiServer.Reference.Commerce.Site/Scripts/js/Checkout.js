@@ -57,12 +57,13 @@
         });
     },
     refreshView: function () {
-
+        console.log("from refreshview");
         var view = $("#CheckoutView");
 
         if (view.length == 0) {
             return;
         }
+
         var url = view.data('url');
         $.ajax({
             cache: false,
@@ -113,10 +114,10 @@
             return;
         }
         var form = $('.jsCheckoutForm');
-        if (form.length == 0)
-        {
+        if (form.length == 0) {
             return;
         }
+
         $.ajax({
             type: "POST",
             cache: false,
@@ -124,13 +125,15 @@
             data: form.serialize(),
             success: function (result) {
                 Checkout.updateOrderSummary();
+                Checkout.changePayment();
             }
         });
+
     },
     changePayment: function () {
         $.ajax({
             type: "POST",
-            url: $(this).data('url'),
+            url: $(".jsChangePayment:checked").data('url'),
             success: function (result) {
                 $('.jsPaymentMethod').replaceWith($(result).find('.jsPaymentMethod'));
                 Checkout.updateOrderSummary();
@@ -152,14 +155,14 @@
         $("#AlternativeAddressButton").hide();
         $(".shipping-address:hidden").slideToggle(300);
         $(".shipping-address").css("display", "block");
-        $("#UseBillingAddressForShipment").val("False");        
+        $("#UseBillingAddressForShipment").val("False");
     },
     enableShippingAddress: function (event) {
 
         event.preventDefault();
 
         Checkout.doEnableShippingAddress();
-        
+
         var form = $('.jsCheckoutForm');
         $("#ShippingAddressIndex").val(0);
 
@@ -169,17 +172,17 @@
             url: $('.jsCheckoutAddress').data('url'),
             data: form.serialize(),
             success: function (result) {
-                $("#AddressContainer").html($(result)); 
+                $("#AddressContainer").html($(result));
                 Checkout.initializeAddressAreas();
                 Checkout.updateOrderSummary();
             }
         });
     },
-    doRemoveShippingAddress: function() {
+    doRemoveShippingAddress: function () {
         $("#AlternativeAddressButton").show();
         $(".shipping-address:visible").slideToggle(300);
         $(".shipping-address").css("display", "none");
-        $("#UseBillingAddressForShipment").val("True");        
+        $("#UseBillingAddressForShipment").val("True");
     },
     removeShippingAddress: function (event) {
 

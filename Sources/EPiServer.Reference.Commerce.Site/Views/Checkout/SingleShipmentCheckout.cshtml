@@ -87,7 +87,7 @@
         </div>
     }
 
-    <form class="jsCheckoutForm" action="@Url.Action("Purchase", "Checkout")" method="post" novalidate data-updateurl="@Url.Action("Update", null, null)">
+    <form class="jsCheckoutForm" action="@Url.Action("Purchase", "Checkout")" method="post" novalidate data-addpaymentinfourl="@Url.Action("AddPaymentAndAddressInformation", null, null)" data-updateurl="@Url.Action("Update", null, null)">
 
         <h2>@Html.Translate("/Checkout/Payment/Heading")</h2>
         <div class="row section-box">

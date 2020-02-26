@@ -419,7 +419,8 @@ namespace EPiServer.Reference.Commerce.Site.Tests.Features.Checkout.Services
               new MemoryLocalizationService(),
               _mailServiceMock.Object,
               _cartServiceMock.Object,
-              _databaseModeMock.Object);
+              _databaseModeMock.Object,
+              null);
         }
     }
 }
