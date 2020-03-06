@@ -85,6 +85,7 @@
     <Compile Include="PageObjectModels\ManagerSite\Return\NewLineItemFramePage.cs" />
     <Compile Include="PageObjectModels\ManagerSite\Return\CreateRefundFramePage.cs" />
     <Compile Include="PageObjectModels\ManagerSite\Order\PaymentRowItem.cs" />
+    <Compile Include="PageObjectModels\ManagerSite\Return\ReturnTableRow.cs" />
     <Compile Include="PageObjectModels\ManagerSite\Shipment\PickListsFramePage.cs" />
     <Compile Include="PageObjectModels\ManagerSite\Shipment\ConfirmationPickListFramePage.cs" />
     <Compile Include="PageObjectModels\ManagerSite\Shipment\ShipmentsFramePage.cs" />

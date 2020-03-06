@@ -1,4 +1,5 @@
 ﻿using Atata;
+using EPiServer.Reference.Commerce.UiTests.PageObjectModels.ManagerSite.Return;
 
 namespace EPiServer.Reference.Commerce.UiTests.PageObjectModels.ManagerSite.Order
 {
@@ -68,17 +69,11 @@ namespace EPiServer.Reference.Commerce.UiTests.PageObjectModels.ManagerSite.Orde
 
         #region Returns
 
-        [FindByContent("Complete Return")]
-        public Button<_> CompleteReturn { get; private set; }
-
-        [FindByContent("Acknowledge Receipt Items")]
-        public Button<_> AcknowledgeReceiptItems { get; private set; }
+        [FindByClass("blockSelected")]
+        public ItemsControl<ReturnTableRow<_>, _> ReturnRows { get; private set; }
 
         [FindById("ctl03_xmlStruct_GeneralInfoCtrl1_lblTotal")]
         public Text<_> OrderTotal { get; private set; }
-
-        [FindById("ctl03_xmlStruct_ReturnOrderRepeater_ObjRepeater_RepItem_0_LineItemsGrid_0_MyListView_0_MainGrid_0")]
-        public Table<PaymentRowItem<_>, _> TableReturns { get; private set; }
 
         [FindById("McCommandHandlerFrameContainer_McCommandHandlerFrameIFrame")]
         public Frame<_> CreateRefundFrame { get; private set; }

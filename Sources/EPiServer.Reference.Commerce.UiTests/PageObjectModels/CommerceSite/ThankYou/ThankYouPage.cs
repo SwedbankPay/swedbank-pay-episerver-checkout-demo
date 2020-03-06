@@ -7,7 +7,7 @@ namespace EPiServer.Reference.Commerce.UiTests.PageObjectModels.CommerceSite.Tha
 
     public class ThankYouPage : BaseCommercePage<_>
     {
-        [FindByContent("Tack för din beställning!")]
+        [FindByContent(TermMatch.Contains, "Tack för din beställning!")]
         public Text<_> ThankYouMessage { get; private set; }
 
         [FindByContent(TermMatch.Contains, "Order ID:")]

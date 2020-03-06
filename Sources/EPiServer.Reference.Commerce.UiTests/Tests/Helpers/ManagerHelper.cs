@@ -181,7 +181,7 @@ namespace EPiServer.Reference.Commerce.UiTests.Tests.Helpers
                 true);
         }
 
-        public static ManagerPage CompleteReturn(this ManagerPage frame, Product[] products, bool partial)
+        public static ManagerPage CompleteReturn(this ManagerPage frame, Product[] products, bool partial, int index = 0)
         {
             return frame
                 .RightFrame.DoWithin<OrderFramePage>(x =>
@@ -190,12 +190,12 @@ namespace EPiServer.Reference.Commerce.UiTests.Tests.Helpers
                     .SaveChanges.Click()
                     .SaveChanges.IsVisible.WaitTo.BeFalse()
                     .Returns.Click()
-                    .AcknowledgeReceiptItems.IsEnabled.WaitTo.BeTrue()
-                    .AcknowledgeReceiptItems.Click()
-                    .TableReturns.Rows.Count.WaitTo.Equal(products.Length)
-                    .CompleteReturn.IsEnabled.WaitTo.BeTrue()
+                    .ReturnRows[index].AcknowledgeReceiptItems.IsEnabled.WaitTo.BeTrue()
+                    .ReturnRows[index].AcknowledgeReceiptItems.Click()
+                    //.ReturnRows[index].TableReturns.Rows.Count.WaitTo.Equal(products.Length)
+                    .ReturnRows[index].CompleteReturn.IsEnabled.WaitTo.BeTrue()
                     .OrderTotal.StoreValue(out var totalAmount)
-                    .CompleteReturn.Click()
+                    .ReturnRows[index].CompleteReturn.Click()
                     .CreateRefundFrame.DoWithin<CreateRefundFramePage>(x =>
                     {
                         x
@@ -255,11 +255,11 @@ namespace EPiServer.Reference.Commerce.UiTests.Tests.Helpers
                 .CompletePickListShipment(orderId);
         }
 
-        public static ManagerPage CreateReversal(this ManagerPage frame, string orderId, Product[] products, bool partial = true)
+        public static ManagerPage CreateReversal(this ManagerPage frame, string orderId, Product[] products, bool partial = true, int index = 0)
         {
             return frame
                 .CreateReturn(orderId, products)
-                .CompleteReturn(products, partial);
+                .CompleteReturn(products, partial, index);
         }
 
         public static ManagerPage CompleteSale(this ManagerPage frame, string orderId)
