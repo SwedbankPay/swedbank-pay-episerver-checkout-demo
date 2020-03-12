@@ -1,4 +1,7 @@
-﻿using EPiServer.Core;
+﻿using System;
+using System.Diagnostics;
+using System.Reflection;
+using EPiServer.Core;
 using EPiServer.Reference.Commerce.Site.Features.Navigation.ViewModels;
 using EPiServer.Reference.Commerce.Site.Features.Start.Pages;
 using EPiServer.SpecializedProperties;
@@ -9,6 +12,8 @@ namespace EPiServer.Reference.Commerce.Site.Features.Navigation.Controllers
     public class FooterController : Controller
     {
         private readonly IContentLoader _contentLoader;
+        private static string _pluginVersion;
+        private static string _sdkVersion;
 
         public FooterController(IContentLoader contentLoader)
         {
@@ -24,6 +29,31 @@ namespace EPiServer.Reference.Commerce.Site.Features.Navigation.Controllers
             };
 
             return PartialView(viewModel);
+        }
+
+        [ChildActionOnly]
+        public ActionResult Version()
+        {
+            if (string.IsNullOrWhiteSpace(_pluginVersion))
+            {
+                var pluginAssembly = typeof(SwedbankPay.Episerver.Checkout.SwedbankPayCheckoutService).Assembly;
+                var pluginVersionInfo = FileVersionInfo.GetVersionInfo(pluginAssembly.Location);
+                _pluginVersion = pluginVersionInfo.ProductVersion;
+            }
+
+            if (string.IsNullOrWhiteSpace(_sdkVersion))
+            {
+                var sdkAssembly = typeof(SwedbankPay.Sdk.SwedbankPayClient).Assembly;
+                var sdkVersionInfo = FileVersionInfo.GetVersionInfo(sdkAssembly.Location);
+                _sdkVersion = sdkVersionInfo.ProductVersion;
+            }
+
+            var versionViewModel = new VersionViewModel
+            {
+                SdkVersion = _sdkVersion,
+                PluginVersion = _pluginVersion
+            };
+            return PartialView(versionViewModel);
         }
     }
 }
