@@ -11,16 +11,18 @@ using EPiServer.Reference.Commerce.Site.Features.Checkout.Pages;
 using EPiServer.Reference.Commerce.Site.Features.Checkout.ViewModels;
 using EPiServer.Reference.Commerce.Site.Features.Start.Pages;
 using EPiServer.Reference.Commerce.Site.Infrastructure.Facades;
+
 using Mediachase.Commerce.Orders;
 using Mediachase.Commerce.Orders.Exceptions;
+
+using SwedbankPay.Episerver.Checkout;
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
 using System.Web.Mvc;
-using SwedbankPay.Episerver.Checkout;
-using SwedbankPay.Episerver.Checkout.Common;
 
 namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Services
 {
@@ -239,7 +241,6 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Services
         public IPurchaseOrder CreatePurchaseOrderForSwedbankPay(ICart cart)
         {
             cart.ProcessPayments(_paymentProcessor, _orderGroupCalculator);
-            var checkoutOrderId = cart.Properties[Constants.SwedbankPayCheckoutOrderIdCartField]?.ToString();
             var totalProcessedAmount = cart.GetFirstForm().Payments.Where(x => x.Status.Equals(PaymentStatus.Processed.ToString())).Sum(x => x.Amount);
             if (totalProcessedAmount != cart.GetTotal(_orderGroupCalculator).Amount)
             {
@@ -250,7 +251,9 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Services
             var purchaseOrder = _orderRepository.Load<IPurchaseOrder>(orderReference.OrderGroupId);
             _orderRepository.Delete(cart.OrderLink);
 
-            if (purchaseOrder == null)
+            var validationIssues = _cartService.RequestInventory(cart);
+
+            if (purchaseOrder == null || validationIssues != null && validationIssues.Any())
             {
                 _swedbankPayCheckoutService.CancelOrder(cart);
                 return null;
@@ -258,7 +261,6 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Services
             else
             {
                 _swedbankPayCheckoutService.Complete(purchaseOrder);
-                purchaseOrder.Properties[Constants.SwedbankPayOrderIdField] = checkoutOrderId;
 
                 _orderRepository.Save(purchaseOrder);
                 return purchaseOrder;

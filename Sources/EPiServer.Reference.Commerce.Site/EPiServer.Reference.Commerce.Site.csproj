@@ -331,14 +331,14 @@
     <Reference Include="StructureMap.Web, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\structuremap.web.4.0.0.315\lib\net40\StructureMap.Web.dll</HintPath>
     </Reference>
-    <Reference Include="SwedbankPay.Episerver.Checkout, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\SwedbankPay.Episerver.Checkout.1.1.0\lib\net461\SwedbankPay.Episerver.Checkout.dll</HintPath>
+    <Reference Include="SwedbankPay.Episerver.Checkout, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\SwedbankPay.Episerver.Checkout.1.2.0\lib\net461\SwedbankPay.Episerver.Checkout.dll</HintPath>
     </Reference>
-    <Reference Include="SwedbankPay.Episerver.Checkout.Common, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\SwedbankPay.Episerver.Checkout.1.1.0\lib\net461\SwedbankPay.Episerver.Checkout.Common.dll</HintPath>
+    <Reference Include="SwedbankPay.Episerver.Checkout.Common, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\SwedbankPay.Episerver.Checkout.1.2.0\lib\net461\SwedbankPay.Episerver.Checkout.Common.dll</HintPath>
     </Reference>
-    <Reference Include="SwedbankPay.Episerver.Checkout.OrderManagement, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\SwedbankPay.Episerver.Checkout.1.1.0\lib\net461\SwedbankPay.Episerver.Checkout.OrderManagement.dll</HintPath>
+    <Reference Include="SwedbankPay.Episerver.Checkout.OrderManagement, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\SwedbankPay.Episerver.Checkout.1.2.0\lib\net461\SwedbankPay.Episerver.Checkout.OrderManagement.dll</HintPath>
     </Reference>
     <Reference Include="SwedbankPay.Sdk, Version=1.1.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\SwedbankPay.Sdk.1.1.1-beta0000\lib\netstandard2.0\SwedbankPay.Sdk.dll</HintPath>
@@ -567,6 +567,7 @@
     <Compile Include="Features\Navigation\ViewModels\FooterViewModel.cs" />
     <Compile Include="Features\Navigation\ViewModels\VersionViewModel.cs" />
     <Compile Include="Features\Payment\Controllers\PaymentController.cs" />
+    <Compile Include="Features\Payment\Controllers\SwedbankPayCallbackController.cs" />
     <Compile Include="Features\Payment\PaymentMethods\AuthorizePaymentMethod.cs" />
     <Compile Include="Features\Payment\PaymentMethods\CashOnDeliveryPaymentMethod.cs" />
     <Compile Include="Features\Payment\PaymentMethods\CreditCardPaymentMethodBase.cs" />

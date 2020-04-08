@@ -1,6 +1,7 @@
 ﻿using EPiServer.Commerce.Order;
 using EPiServer.Core;
 using EPiServer.Data;
+using EPiServer.Reference.Commerce.Site.Features.AddressBook.Services;
 using EPiServer.Reference.Commerce.Site.Features.Cart.Services;
 using EPiServer.Reference.Commerce.Site.Features.Checkout.Pages;
 using EPiServer.Reference.Commerce.Site.Features.Checkout.Services;
@@ -8,27 +9,21 @@ using EPiServer.Reference.Commerce.Site.Features.Checkout.ViewModelFactories;
 using EPiServer.Reference.Commerce.Site.Features.Checkout.ViewModels;
 using EPiServer.Reference.Commerce.Site.Features.Market.Services;
 using EPiServer.Reference.Commerce.Site.Features.Recommendations.Services;
-using EPiServer.Reference.Commerce.Site.Features.Shared.Models;
 using EPiServer.Reference.Commerce.Site.Features.Shared.Services;
 using EPiServer.Reference.Commerce.Site.Infrastructure.Attributes;
 using EPiServer.Web.Mvc;
 using EPiServer.Web.Mvc.Html;
 using EPiServer.Web.Routing;
+
+using Mediachase.Commerce.Markets;
+
+using SwedbankPay.Episerver.Checkout;
+using SwedbankPay.Episerver.Checkout.Common;
+
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
-using EPiServer.Reference.Commerce.Site.Features.AddressBook.Services;
-using EPiServer.Reference.Commerce.Site.Features.Start.Pages;
-using Mediachase.Commerce.Markets;
-using Mediachase.Commerce.Orders;
-using SwedbankPay.Episerver.Checkout;
-using SwedbankPay.Episerver.Checkout.Common;
-using SwedbankPay.Sdk;
-using SwedbankPay.Sdk.PaymentOrders;
-using SwedbankPay.Sdk.Payments;
-using PaymentType = Mediachase.Commerce.Orders.PaymentType;
-using TransactionType = SwedbankPay.Sdk.TransactionType;
 
 namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
 {
@@ -295,48 +290,5 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
             var paymentOrderResponseObject = _swedbankPayCheckoutService.CreateOrUpdatePaymentOrder(Cart, "description", consumerProfileRef);
             return paymentOrderResponseObject.Operations.View.Href.OriginalString;
         }
-
-
-        [HttpGet]
-        public ActionResult SwedbankPayCheckoutConfirmation(int orderGroupId)
-        {
-            var cart = _orderRepository.Load<ICart>(orderGroupId);
-            if (cart != null)
-            {
-                var order = _swedbankPayCheckoutService.GetPaymentOrder(cart, PaymentOrderExpand.All);
-
-                var paymentResponse = order.PaymentOrderResponse.CurrentPayment;
-                var transaction = paymentResponse.Payment.Transactions?.TransactionList?.FirstOrDefault(x =>
-                    x.State.Equals(State.Completed) &&
-                    x.Type.Equals(TransactionType.Authorization) ||
-                    x.Type.Equals(TransactionType.Sale));
-
-                if (transaction != null)
-                {
-                    var purchaseOrder = _checkoutService.CreatePurchaseOrderForSwedbankPay(cart);
-                    if (purchaseOrder == null)
-                    {
-                        ModelState.AddModelError("", "Error occurred while creating a purchase order");
-                        return RedirectToAction("Index");
-                    }
-
-                    var checkoutViewModel = new CheckoutViewModel
-                    {
-                        CurrentPage = _contentLoader.Get<CheckoutPage>(_contentLoader.Get<StartPage>(ContentReference.StartPage).CheckoutPage),
-                        BillingAddress = new Shared.Models.AddressModel { Email = purchaseOrder.GetFirstForm().Payments.FirstOrDefault()?.BillingAddress?.Email }
-                    };
-
-                    var confirmationSentSuccessfully = _checkoutService.SendConfirmation(checkoutViewModel, purchaseOrder);
-
-                    return Redirect(_checkoutService.BuildRedirectionUrl(checkoutViewModel, purchaseOrder, confirmationSentSuccessfully));
-                }
-                else
-                {
-                    return RedirectToAction("Index");
-                }
-            }
-            return HttpNotFound();
-        }
-
     }
 }

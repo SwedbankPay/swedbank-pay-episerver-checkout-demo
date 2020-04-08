@@ -10,11 +10,13 @@ using Mediachase.Commerce.Orders;
 
 using SwedbankPay.Episerver.Checkout;
 using SwedbankPay.Episerver.Checkout.Common;
+using SwedbankPay.Sdk;
 using SwedbankPay.Sdk.PaymentOrders;
 
 using System;
 using System.ComponentModel;
-using SwedbankPay.Sdk;
+using System.Linq;
+using SwedbankPay.Episerver.Checkout.Common.Extensions;
 using PaymentType = Mediachase.Commerce.Orders.PaymentType;
 using TransactionType = Mediachase.Commerce.Orders.TransactionType;
 
@@ -78,7 +80,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Payment.PaymentMethods
             CheckoutConfiguration = _swedbankPayCheckoutService.LoadCheckoutConfiguration(market);
             Culture = _languageService.GetCurrentLanguage().TextInfo.CultureName;
 
-            var orderId = cart.Properties[Constants.SwedbankPayCheckoutOrderIdCartField]?.ToString();
+            var orderId = cart.Properties[Constants.SwedbankPayOrderIdField]?.ToString();
             if (!string.IsNullOrWhiteSpace(orderId) || CheckoutConfiguration.UseAnonymousCheckout)
             {
                 GetCheckoutJavascriptSource(cart, $"description cart {cart.OrderLink.OrderGroupId}");
@@ -112,15 +114,22 @@ namespace EPiServer.Reference.Commerce.Site.Features.Payment.PaymentMethods
         {
             var paymentOrder = _swedbankPayCheckoutService.GetPaymentOrder(orderGroup, PaymentOrderExpand.All);
             var currentPayment = paymentOrder.PaymentOrderResponse.CurrentPayment.Payment;
+            var transaction = currentPayment?.Transactions?.TransactionList?.FirstOrDefault();
+            var transactionType = transaction?.Type.ConvertToEpiTransactionType() ?? TransactionType.Authorization;
 
             var payment = orderGroup.CreatePayment(_orderGroupFactory);
             payment.PaymentType = PaymentType.Other;
             payment.PaymentMethodId = PaymentMethodId;
             payment.PaymentMethodName = Constants.SwedbankPayCheckoutSystemKeyword;
+            payment.ProviderTransactionID = transaction?.Number;
             payment.Amount = amount;
-            var isSwishPayment = currentPayment.Instrument.Equals(PaymentInstrument.Swish);
-            payment.Status = isSwishPayment ? PaymentStatus.Processed.ToString() : PaymentStatus.Pending.ToString();
-            payment.TransactionType = isSwishPayment ? TransactionType.Sale.ToString() : TransactionType.Authorization.ToString();
+            var isSwishPayment = currentPayment?.Instrument.Equals(PaymentInstrument.Swish) ?? false;
+            var isInvoicePayment = currentPayment?.Instrument.Equals(PaymentInstrument.Invoice) ?? false;
+            payment.Status = isSwishPayment || isInvoicePayment ? PaymentStatus.Processed.ToString() : PaymentStatus.Pending.ToString();
+
+            payment.TransactionType = isInvoicePayment ? TransactionType.Other.ToString() : transactionType.ToString();
+
+
             return payment;
         }
 
