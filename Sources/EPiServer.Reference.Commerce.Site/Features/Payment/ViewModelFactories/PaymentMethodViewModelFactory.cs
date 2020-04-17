@@ -7,6 +7,8 @@ using Mediachase.Commerce;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EPiServer.Reference.Commerce.Site.Features.Payment.PaymentMethods;
+using SwedbankPay.Episerver.Checkout.Common;
 
 namespace EPiServer.Reference.Commerce.Site.Features.Payment.ViewModelFactories
 {
@@ -35,6 +37,12 @@ namespace EPiServer.Reference.Commerce.Site.Features.Payment.ViewModelFactories
             var viewModel = CreatePaymentMethodSelectionViewModel();
             viewModel.SelectedPaymentMethod = viewModel.PaymentMethods.Single(x => x.PaymentMethod.PaymentMethodId == paymentMethodId);
 
+            if (viewModel.SelectedPaymentMethod?.PaymentMethod.SystemKeyword == Constants.SwedbankPayCheckoutSystemKeyword)
+            {
+                var swedbankPayCheckoutPaymentMethod = viewModel.SelectedPaymentMethod.PaymentMethod as SwedbankPayCheckoutPaymentMethod;
+                swedbankPayCheckoutPaymentMethod?.InitializeValues();
+            }
+
             return viewModel;
         }
 
@@ -45,6 +53,12 @@ namespace EPiServer.Reference.Commerce.Site.Features.Payment.ViewModelFactories
             {
                 viewModel.SelectedPaymentMethod = viewModel.PaymentMethods.Single(x => x.PaymentMethod.PaymentMethodId == paymentMethod.PaymentMethodId);
                 viewModel.SelectedPaymentMethod.PaymentMethod = paymentMethod;
+            }
+
+            if (viewModel.SelectedPaymentMethod?.PaymentMethod.SystemKeyword == Constants.SwedbankPayCheckoutSystemKeyword)
+            {
+                var swedbankPayCheckoutPaymentMethod = viewModel.SelectedPaymentMethod.PaymentMethod as SwedbankPayCheckoutPaymentMethod;
+                swedbankPayCheckoutPaymentMethod?.InitializeValues();
             }
             return viewModel;
         }

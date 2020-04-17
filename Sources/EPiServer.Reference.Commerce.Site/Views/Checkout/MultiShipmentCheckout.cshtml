@@ -60,8 +60,8 @@
         </div>
     </div>
 
-    @using (Html.BeginForm("Purchase", "Checkout", FormMethod.Post, new { @class = "jsCheckoutForm", @data_UpdateUrl = Url.Action("Update", null, null) }))
-    {
+	@using (Html.BeginForm("Purchase", "Checkout", FormMethod.Post, new { @class = "jsCheckoutForm", @data_UpdateUrl = Url.Action("Update", null, null), @data_addpaymentinfourl = Url.Action("AddPaymentAndAddressInformation", null, null)}))
+	{
         <div class="row section-box">
             <div class="col-xs-12">
                 <div class="checkout-cart jsLargeCart">

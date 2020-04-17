@@ -1,6 +1,7 @@
 ﻿using EPiServer.Commerce.Order;
 using EPiServer.Core;
 using EPiServer.Data;
+using EPiServer.Reference.Commerce.Site.Features.AddressBook.Services;
 using EPiServer.Reference.Commerce.Site.Features.Cart.Services;
 using EPiServer.Reference.Commerce.Site.Features.Checkout.Pages;
 using EPiServer.Reference.Commerce.Site.Features.Checkout.Services;
@@ -8,12 +9,17 @@ using EPiServer.Reference.Commerce.Site.Features.Checkout.ViewModelFactories;
 using EPiServer.Reference.Commerce.Site.Features.Checkout.ViewModels;
 using EPiServer.Reference.Commerce.Site.Features.Market.Services;
 using EPiServer.Reference.Commerce.Site.Features.Recommendations.Services;
-using EPiServer.Reference.Commerce.Site.Features.Shared.Models;
 using EPiServer.Reference.Commerce.Site.Features.Shared.Services;
 using EPiServer.Reference.Commerce.Site.Infrastructure.Attributes;
 using EPiServer.Web.Mvc;
 using EPiServer.Web.Mvc.Html;
 using EPiServer.Web.Routing;
+
+using Mediachase.Commerce.Markets;
+
+using SwedbankPay.Episerver.Checkout;
+using SwedbankPay.Episerver.Checkout.Common;
+
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -34,6 +40,10 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
         private ICart _cart;
         private readonly CheckoutService _checkoutService;
         private readonly IDatabaseMode _databaseMode;
+        private readonly ISwedbankPayCheckoutService _swedbankPayCheckoutService;
+        private readonly IContentLoader _contentLoader;
+        private readonly IMarketService _marketService;
+        private readonly IAddressBookService _addressBookService;
 
         public CheckoutController(
             ICurrencyService currencyService,
@@ -45,7 +55,11 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
             IRecommendationService recommendationService,
             CheckoutService checkoutService,
             OrderValidationService orderValidationService,
-            IDatabaseMode databaseMode)
+            IDatabaseMode databaseMode,
+            ISwedbankPayCheckoutService swedbankPayCheckoutService,
+            IContentLoader contentLoader,
+            IMarketService marketService,
+            IAddressBookService addressBookService)
         {
             _currencyService = currencyService;
             _controllerExceptionHandler = controllerExceptionHandler;
@@ -57,6 +71,10 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
             _checkoutService = checkoutService;
             _orderValidationService = orderValidationService;
             _databaseMode = databaseMode;
+            _swedbankPayCheckoutService = swedbankPayCheckoutService;
+            _contentLoader = contentLoader;
+            _marketService = marketService;
+            _addressBookService = addressBookService;
         }
 
         [HttpGet]
@@ -236,6 +254,41 @@ namespace EPiServer.Reference.Commerce.Site.Features.Checkout.Controllers
         private bool CartIsNullOrEmpty()
         {
             return Cart == null || !Cart.GetAllLineItems().Any();
+        }
+
+
+        [HttpPost]
+        [AllowDBWrite]
+        public JsonResult AddPaymentAndAddressInformation(CheckoutViewModel viewModel, IPaymentMethod paymentMethod, string paymentId)
+        {
+            viewModel.IsAuthenticated = User.Identity.IsAuthenticated;
+            _checkoutService.CheckoutAddressHandling.UpdateUserAddresses(viewModel);
+            _checkoutService.UpdateShippingAddresses(Cart, viewModel);
+
+            // Clean up payments in cart on payment provider site.
+            foreach (var form in Cart.Forms)
+            {
+                form.Payments.Clear();
+            }
+
+            var payment = paymentMethod.CreatePayment(Cart.GetTotal().Amount, Cart);
+            payment.BillingAddress = _addressBookService.ConvertToAddress(viewModel.BillingAddress, Cart);
+
+            Cart.AddPayment(payment);
+            Cart.Properties[Constants.SwedbankPayPaymentIdField] = paymentId;
+            _orderRepository.Save(Cart);
+
+            return new JsonResult
+            {
+                Data = true
+            };
+        }
+
+        [HttpPost]
+        public string GetViewPaymentOrderHref(string consumerProfileRef)
+        {
+            var paymentOrderResponseObject = _swedbankPayCheckoutService.CreateOrUpdatePaymentOrder(Cart, "description", consumerProfileRef);
+            return paymentOrderResponseObject.Operations.View.Href.OriginalString;
         }
     }
 }
