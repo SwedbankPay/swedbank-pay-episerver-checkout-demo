@@ -52,7 +52,7 @@ namespace EPiServer.Reference.Commerce.Site.Features.Payment.Controllers
         {
             if (!string.IsNullOrWhiteSpace(callback?.PaymentOrder?.Id?.ToString()))
             {
-                var purchaseOrder = GetOrCreatePurchaseOrder(orderGroupId, callback.PaymentOrder.Id.OriginalString);
+                var purchaseOrder = _checkoutService.GetOrCreatePurchaseOrder(orderGroupId, callback.PaymentOrder.Id.OriginalString);
                 if (purchaseOrder == null)
                 {
                     return new StatusCodeResult(HttpStatusCode.NotFound, this);
@@ -71,6 +71,13 @@ namespace EPiServer.Reference.Commerce.Site.Features.Payment.Controllers
                     var paymentMethod = swedbankPayCheckoutPaymentMethodDto?.PaymentMethod?.FirstOrDefault();
                     if (paymentMethod != null && transaction != null)
                     {
+                        if (paymentOrder.PaymentOrderResponse.CurrentPayment.Payment.Instrument == PaymentInstrument.Invoice
+                            && transaction.Type == TransactionType.Authorization)
+                        {
+                            //Already added a authorization transaction for Invoice when creating payment.
+                            return Ok();
+                        }
+
                         var payment = purchaseOrder.CreatePayment(_orderGroupFactory);
                         payment.PaymentType = PaymentType.Other;
                         payment.PaymentMethodId = paymentMethod.PaymentMethodId;
@@ -88,43 +95,6 @@ namespace EPiServer.Reference.Commerce.Site.Features.Payment.Controllers
             }
 
             return new StatusCodeResult(HttpStatusCode.Accepted, this);
-        }
-
-
-
-        private IPurchaseOrder GetOrCreatePurchaseOrder(int orderGroupId, string swedbankPayOrderId)
-        {
-            // Check if the order has been created already
-            var purchaseOrder = _swedbankPayCheckoutService.GetPurchaseOrderBySwedbankPayOrderId(swedbankPayOrderId);
-            if (purchaseOrder != null)
-            {
-                return purchaseOrder;
-            }
-
-            // Check if we still have a cart and can create an order
-            var cart = _orderRepository.Load<ICart>(orderGroupId);
-            var cartSwedbankPayId = cart?.Properties[Constants.SwedbankPayOrderIdField]?.ToString();
-            if (cartSwedbankPayId == null || !cartSwedbankPayId.Equals(swedbankPayOrderId))
-            {
-                return null;
-            }
-
-            var order = _swedbankPayCheckoutService.GetPaymentOrder(cart, PaymentOrderExpand.All);
-
-            var paymentResponse = order.PaymentOrderResponse.CurrentPayment;
-            var transaction = paymentResponse.Payment.Transactions?.TransactionList?.FirstOrDefault(x =>
-                x.State.Equals(State.Completed) &&
-                x.Type.Equals(TransactionType.Authorization) ||
-                x.Type.Equals(TransactionType.Sale));
-
-            if (transaction != null)
-            {
-                purchaseOrder = _checkoutService.CreatePurchaseOrderForSwedbankPay(cart);
-                return purchaseOrder;
-            }
-
-            // Won't create order, SwedbankPay checkout not complete
-            return null;
         }
     }
 }
